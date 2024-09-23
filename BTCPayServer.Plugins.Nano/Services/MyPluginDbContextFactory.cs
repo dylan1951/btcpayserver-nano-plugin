@@ -3,8 +3,10 @@ using BTCPayServer.Abstractions.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Options;
+using System;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
-namespace BTCPayServer.Plugins.Template.Services;
+namespace BTCPayServer.Plugins.Nano.Services;
 
 public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<MyPluginDbContext>
 {
@@ -22,11 +24,11 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<MyPluginDb
 
 public class MyPluginDbContextFactory : BaseDbContextFactory<MyPluginDbContext>
 {
-    public MyPluginDbContextFactory(IOptions<DatabaseOptions> options) : base(options, "BTCPayServer.Plugins.Template")
+    public MyPluginDbContextFactory(IOptions<DatabaseOptions> options) : base(options, "BTCPayServer.Plugins.Nano")
     {
     }
 
-    public override MyPluginDbContext CreateContext()
+    public override MyPluginDbContext CreateContext(Action<NpgsqlDbContextOptionsBuilder> npgsqlOptionsAction = null)
     {
         var builder = new DbContextOptionsBuilder<MyPluginDbContext>();
         ConfigureBuilder(builder);

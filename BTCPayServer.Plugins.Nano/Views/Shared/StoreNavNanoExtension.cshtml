@@ -1,0 +1,19 @@
+@using BTCPayServer
+@using BTCPayServer.Plugins.Nano.Controllers
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using BTCPayServer.Abstractions.Contracts
+@using BTCPayServer.Data
+@using BTCPayServer.Plugins.Nano.Configuration
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager;
+@inject NanoLikeConfiguration NanoLikeConfiguration;
+@inject IScopeProvider ScopeProvider
+@{
+    var storeId = ScopeProvider.GetCurrentStoreId();
+    var isActive = !string.IsNullOrEmpty(storeId) && ViewContext.RouteData.Values.TryGetValue("Controller", out var controller) && controller is not null && 
+                   nameof(UINanoLikeStoreController).StartsWith(controller.ToString() ?? string.Empty, StringComparison.InvariantCultureIgnoreCase);
+}
+@if (SignInManager.IsSignedIn(User) && User.IsInRole(Roles.ServerAdmin) && NanoLikeConfiguration.NanoLikeConfigurationItems.Any())
+{
+    <a class="nav-link @(isActive ? "active" : string.Empty)" asp-route-storeId="@storeId" asp-action="GetStoreNanoLikePaymentMethods" asp-controller="UINanoLikeStore">Nano</a>
+}

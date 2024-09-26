@@ -1,0 +1,22 @@
+@using BTCPayServer
+@using BTCPayServer.Data
+@using BTCPayServer.Plugins.Nano.Services
+@using Microsoft.AspNetCore.Identity
+@inject NanoRPCProvider NanoRpcProvider
+@inject SignInManager<ApplicationUser> SignInManager;
+
+@if (SignInManager.IsSignedIn(User) && User.IsInRole(Roles.ServerAdmin) && NanoRpcProvider.Summaries.Any())
+{
+    @foreach (var summary in NanoRpcProvider.Summaries)
+    {
+        @if (summary.Value != null)
+        {
+            <h5 class="d-flex align-items-center fw-semibold">
+                @summary.Key
+            </h5>
+            <ul>
+                <li>Node available: @summary.Value.PippinAvailable</li>
+            </ul>
+        }
+    }
+}

@@ -36,7 +36,7 @@ public class NanoPlugin : BaseBTCPayServerPlugin
                 "XNO_X = XNO_BTC * BTC_X",
                 "XNO_BTC = kraken(NANO_BTC)"
             },
-            CryptoImagePath = "/imlegacy/nano.png",
+            CryptoImagePath = "Resources/img/nano.png",
             UriScheme = "nano"
         };
         

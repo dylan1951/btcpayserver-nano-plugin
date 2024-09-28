@@ -22,38 +22,66 @@ ViewData.SetActivePage(StoreNavPages.OnchainSettings, $"{Model.CryptoCode} Setti
 
             <!-- Enable/Disable Payment Method -->
             <div class="form-group">
-                <label asp-for="Enabled"></label>
-                <input asp-for="Enabled" type="checkbox" class="form-check"/>
-                <span asp-validation-for="Enabled" class="text-danger"></span>
+                <label asp-for="Enabled" class="form-label">Enable Nano Payment Method</label>
+                <div class="form-check">
+                    <input asp-for="Enabled" class="form-check-input" type="checkbox"/>
+                    <span asp-validation-for="Enabled" class="text-danger"></span>
+                </div>
             </div>
 
-            <!-- Wallet Seed Section -->
+            <!-- Combined Wallet Seed Section -->
             <div class="form-group">
-                <label class="form-label">Wallet Seed</label>
+                <label asp-for="WalletSeed" class="form-label">Wallet Seed</label>
                 <div class="input-group">
-                    <!-- Input field for wallet seed (hidden by default) -->
-                    <input type="password" id="walletSeed" class="form-control" value="@Model.WalletSeed" readonly />
+                    <!-- Single input field for displaying and changing the wallet seed -->
+                    <input type="password" asp-for="WalletSeed" id="walletSeed" class="form-control" placeholder="Enter new wallet seed or view current one" value="@Model.WalletSeed" />
 
-                    <!-- Button to toggle visibility of wallet seed -->
+                    <!-- Button to toggle visibility of the wallet seed -->
                     <div class="input-group-append">
                         <button type="button" class="btn btn-outline-secondary" onclick="toggleSeedVisibility()">Reveal</button>
                     </div>
                 </div>
                 <span asp-validation-for="WalletSeed" class="text-danger"></span>
-                <small class="form-text text-muted">Keep this seed confidential. It is crucial for wallet recovery. Always ensure to back it up securely.</small>
+                <small class="form-text text-muted">
+                    Keep your wallet seed confidential. You can change it by entering a new one, but ensure it is backed up securely before making any changes.
+                </small>
             </div>
 
-            <!-- Section to allow changing the wallet seed -->
-            <div class="form-group">
-                <label asp-for="WalletSeed" class="form-label">Change Wallet Seed</label>
-                <input type="text" asp-for="WalletSeed" class="form-control" placeholder="Enter new wallet seed" />
-                <span asp-validation-for="WalletSeed" class="text-danger"></span>
-                <small class="form-text text-muted">Make sure to backup your seed before changing it, as this is crucial for wallet recovery.</small>
+            <!-- Nano RPC URL Configuration -->
+            <div class="form-group mb-4">
+                <label class="form-label" for="rpcUrlInput">Nano RPC URL</label>
+                <input type="text" asp-for="NanoRpcUrl" id="rpcUrlInput" class="form-control" placeholder="Select or enter RPC URL" list="rpcUrlList" aria-describedby="rpcUrlHelpBlock">
+                <datalist id="rpcUrlList">
+                    <option value="https://node.somenano.com/proxy">SomeNano</option>
+                    <option value="https://rainstorm.city/api">Rainstorm City</option>
+                    <option value="https://www.bitrequest.app:8020/">Bitrequest</option>
+                    <option value="https://nanoslo.0x.no/proxy">NanOslo</option>
+                </datalist>
+                <span asp-validation-for="NanoRpcUrl" class="text-danger"></span>
+                <div id="rpcUrlHelpBlock" class="form-text">
+                    Select from the predefined public RPC URLs or enter a custom one.
+                </div>
+            </div>
+
+            <!-- Nano Websocket URL Configuration -->
+            <div class="form-group mb-4">
+                <label class="form-label" for="websocketUrlInput">Nano Websocket URL</label>
+                <input type="text" asp-for="NanoWebsocketUrl" id="websocketUrlInput" class="form-control" placeholder="Select or enter Websocket URL" list="websocketUrlList" aria-describedby="websocketUrlHelpBlock">
+                <datalist id="websocketUrlList">
+                    <option value="wss://node.somenano.com/websocket">SomeNano</option>
+                    <option value="wss://rainstorm.city/websocket">Rainstorm City</option>
+                    <option value="wss://bitrequest.app:8010/">Bitrequest</option>
+                    <option value="wss://nanoslo.0x.no/websocket">NanOslo</option>
+                </datalist>
+                <span asp-validation-for="NanoWebsocketUrl" class="text-danger"></span>
+                <div id="websocketUrlHelpBlock" class="form-text">
+                    Select a public Websocket URL or provide your custom Websocket URL.
+                </div>
             </div>
 
             <!-- Submit Button -->
             <div class="form-group">
-                <button type="submit" class="btn btn-primary" id="SaveButton">Save</button>
+                <button type="submit" class="btn btn-primary" id="SaveButton">Save Changes</button>
             </div>
         </form>
     </div>

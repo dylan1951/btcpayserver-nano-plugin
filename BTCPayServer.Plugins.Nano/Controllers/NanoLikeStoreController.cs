@@ -18,31 +18,27 @@ using Microsoft.AspNetCore.Mvc;
 namespace BTCPayServer.Plugins.Nano.Controllers
 {
     [Route("stores/{storeId}/nanolike")]
-    [OnlyIfSupportAttribute("XNO")]
+    [OnlyIfSupport("XNO")]
     [Authorize(AuthenticationSchemes = AuthenticationSchemes.Cookie)]
     [Authorize(Policy = Policies.CanModifyStoreSettings, AuthenticationSchemes = AuthenticationSchemes.Cookie)]
     [Authorize(Policy = Policies.CanModifyServerSettings, AuthenticationSchemes = AuthenticationSchemes.Cookie)]
     public class UINanoLikeStoreController : Controller
     {
-        private readonly NanoLikeConfiguration _NanoLikeConfiguration;
-        private readonly StoreRepository _StoreRepository;
-        private readonly NanoRPCProvider _NanoRpcProvider;
+        private readonly NanoLikeConfiguration _nanoLikeConfiguration;
+        private readonly StoreRepository _storeRepository;
         private readonly PaymentMethodHandlerDictionary _handlers;
-        private readonly BTCPayNetworkProvider _BtcPayNetworkProvider;
 
         public UINanoLikeStoreController(NanoLikeConfiguration nanoLikeConfiguration,
             StoreRepository storeRepository, NanoRPCProvider nanoRpcProvider,
             PaymentMethodHandlerDictionary handlers,
             BTCPayNetworkProvider btcPayNetworkProvider)
         {
-            _NanoLikeConfiguration = nanoLikeConfiguration;
-            _StoreRepository = storeRepository;
-            _NanoRpcProvider = nanoRpcProvider;
+            _nanoLikeConfiguration = nanoLikeConfiguration;
+            _storeRepository = storeRepository;
             _handlers = handlers;
-            _BtcPayNetworkProvider = btcPayNetworkProvider;
         }
 
-        public StoreData StoreData => HttpContext.GetStoreData();
+        private StoreData StoreData => HttpContext.GetStoreData();
         
 [NonAction]
         public async Task<NanoLikePaymentMethodListViewModel> GetVM(StoreData storeData)
@@ -51,7 +47,7 @@ namespace BTCPayServer.Plugins.Nano.Controllers
             
             return new NanoLikePaymentMethodListViewModel()
             {
-                Items = _NanoLikeConfiguration.NanoLikeConfigurationItems.Select(pair => GetNanoLikePaymentMethodViewModel(storeData, pair.Key, excludeFilters))
+                Items = _nanoLikeConfiguration.NanoLikeConfigurationItems.Select(pair => GetNanoLikePaymentMethodViewModel(storeData, pair.Key, excludeFilters))
             };
         }
 
@@ -69,14 +65,16 @@ namespace BTCPayServer.Plugins.Nano.Controllers
                     settings != null &&
                     !excludeFilters.Match(PaymentTypes.CHAIN.GetPaymentMethodId(cryptoCode)),
                 CryptoCode = cryptoCode,
-                WalletSeed = settings?.WalletSeed
+                WalletSeed = settings?.WalletSeed,
+                NanoWebsocketUrl = settings?.NanoWebsocketUrl,
+                NanoRpcUrl = settings?.NanoRpcUrl,
             };
         }
 
         [HttpGet("{cryptoCode}")]
         public async Task<IActionResult> GetStoreNanoLikePaymentMethod(string cryptoCode)
         {
-            if (!_NanoLikeConfiguration.NanoLikeConfigurationItems.ContainsKey(cryptoCode))
+            if (!_nanoLikeConfiguration.NanoLikeConfigurationItems.ContainsKey(cryptoCode))
             {
                 return NotFound();
             }
@@ -90,7 +88,7 @@ namespace BTCPayServer.Plugins.Nano.Controllers
         public async Task<IActionResult> GetStoreNanoLikePaymentMethod(NanoLikePaymentMethodViewModel viewModel, string command, string cryptoCode)
         {
             cryptoCode = cryptoCode.ToUpperInvariant();
-            if (!_NanoLikeConfiguration.NanoLikeConfigurationItems.TryGetValue(cryptoCode, out _))
+            if (!_nanoLikeConfiguration.NanoLikeConfigurationItems.TryGetValue(cryptoCode, out _))
             {
                 return NotFound();
             }
@@ -102,6 +100,8 @@ namespace BTCPayServer.Plugins.Nano.Controllers
 
                 vm.Enabled = viewModel.Enabled;
                 vm.WalletSeed = viewModel.WalletSeed;
+                vm.NanoWebsocketUrl = viewModel.NanoWebsocketUrl;
+                vm.NanoRpcUrl = viewModel.NanoRpcUrl;
                 return View(vm);
             }
 
@@ -109,26 +109,30 @@ namespace BTCPayServer.Plugins.Nano.Controllers
             var blob = storeData.GetStoreBlob();
             storeData.SetPaymentMethodConfig(_handlers[PaymentTypes.CHAIN.GetPaymentMethodId(cryptoCode)], new NanoPaymentPromptDetails()
             {
-                WalletSeed = viewModel.WalletSeed
+                WalletSeed = viewModel.WalletSeed,
+                NanoWebsocketUrl = viewModel.NanoWebsocketUrl,
+                NanoRpcUrl = viewModel.NanoRpcUrl
             });
 
             blob.SetExcluded(PaymentTypes.CHAIN.GetPaymentMethodId(viewModel.CryptoCode), !viewModel.Enabled);
             storeData.SetStoreBlob(blob);
-            await _StoreRepository.UpdateStore(storeData);
+            await _storeRepository.UpdateStore(storeData);
             return RedirectToAction("GetStoreNanoLikePaymentMethod",
                 new { StatusMessage = $"{cryptoCode} settings updated successfully", storeId = StoreData.Id });
         }
 
         public class NanoLikePaymentMethodListViewModel
         {
-            public IEnumerable<NanoLikePaymentMethodViewModel> Items { get; set; }
+            public IEnumerable<NanoLikePaymentMethodViewModel> Items { get; init; }
         }
 
         public class NanoLikePaymentMethodViewModel : IValidatableObject
         {
-            public string CryptoCode { get; set; }
+            public string CryptoCode { get; init; }
             public bool Enabled { get; set; }
             public string WalletSeed { get; set; }
+            public string NanoRpcUrl { get; set; }
+            public string NanoWebsocketUrl { get; set; }
             
             public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
             {

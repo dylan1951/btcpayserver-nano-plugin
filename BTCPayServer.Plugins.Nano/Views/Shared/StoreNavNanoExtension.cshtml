@@ -15,5 +15,5 @@
 }
 @if (SignInManager.IsSignedIn(User) && User.IsInRole(Roles.ServerAdmin) && NanoLikeConfiguration.NanoLikeConfigurationItems.Any())
 {
-    <a class="nav-link @(isActive ? "active" : string.Empty)" asp-route-storeId="@storeId" asp-action="GetStoreNanoLikePaymentMethods" asp-controller="UINanoLikeStore">Nano</a>
+    <a class="nav-link @(isActive ? "active" : string.Empty)" asp-route-storeId="@storeId" asp-action="GetStoreNanoLikePaymentMethod" asp-controller="UINanoLikeStore">Nano</a>
 }

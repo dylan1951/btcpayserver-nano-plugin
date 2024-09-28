@@ -5,14 +5,14 @@
 @model BTCPayServer.Plugins.Nano.Controllers.UINanoLikeStoreController.NanoLikePaymentMethodViewModel
 
 @{
-    ViewData.SetActivePage(StoreNavPages.OnchainSettings, $"{Model.CryptoCode} Settings", $"{Context.GetStoreData().Id}-{Model.CryptoCode}");
+ViewData.SetActivePage(StoreNavPages.OnchainSettings, $"{Model.CryptoCode} Settings", $"{Context.GetStoreData().Id}-{Model.CryptoCode}");
 }
 
 <div class="row">
     <div class="col-md-8">
         @if (!ViewContext.ModelState.IsValid)
         {
-            <div asp-validation-summary="All" class="text-danger"></div>
+        <div asp-validation-summary="All" class="text-danger"></div>
         }
 
         <form method="post" asp-action="GetStoreNanoLikePaymentMethod"
@@ -20,12 +20,38 @@
               asp-route-cryptoCode="@Context.GetRouteValue("cryptoCode")"
               class="mt-4" enctype="multipart/form-data">
 
+            <!-- Enable/Disable Payment Method -->
             <div class="form-group">
                 <label asp-for="Enabled"></label>
                 <input asp-for="Enabled" type="checkbox" class="form-check"/>
                 <span asp-validation-for="Enabled" class="text-danger"></span>
             </div>
 
+            <!-- Wallet Seed Section -->
+            <div class="form-group">
+                <label class="form-label">Wallet Seed</label>
+                <div class="input-group">
+                    <!-- Input field for wallet seed (hidden by default) -->
+                    <input type="password" id="walletSeed" class="form-control" value="@Model.WalletSeed" readonly />
+
+                    <!-- Button to toggle visibility of wallet seed -->
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-secondary" onclick="toggleSeedVisibility()">Reveal</button>
+                    </div>
+                </div>
+                <span asp-validation-for="WalletSeed" class="text-danger"></span>
+                <small class="form-text text-muted">Keep this seed confidential. It is crucial for wallet recovery. Always ensure to back it up securely.</small>
+            </div>
+
+            <!-- Section to allow changing the wallet seed -->
+            <div class="form-group">
+                <label asp-for="WalletSeed" class="form-label">Change Wallet Seed</label>
+                <input type="text" asp-for="WalletSeed" class="form-control" placeholder="Enter new wallet seed" />
+                <span asp-validation-for="WalletSeed" class="text-danger"></span>
+                <small class="form-text text-muted">Make sure to backup your seed before changing it, as this is crucial for wallet recovery.</small>
+            </div>
+
+            <!-- Submit Button -->
             <div class="form-group">
                 <button type="submit" class="btn btn-primary" id="SaveButton">Save</button>
             </div>
@@ -33,6 +59,14 @@
     </div>
 </div>
 
-@* @section PageFootContent { *@
-@*     @await Html.PartialAsync("_ValidationScriptsPartial") *@
-@* } *@
+<!-- Script to toggle wallet seed visibility -->
+<script>
+    function toggleSeedVisibility() {
+        var seedInput = document.getElementById('walletSeed');
+        if (seedInput.type === 'password') {
+            seedInput.type = 'text';
+        } else {
+            seedInput.type = 'password';
+        }
+    }
+</script>

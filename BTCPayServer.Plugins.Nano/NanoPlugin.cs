@@ -56,7 +56,6 @@ public class NanoPlugin : BaseBTCPayServerPlugin
         services.AddSingleton(provider => (IPaymentLinkExtension)ActivatorUtilities.CreateInstance(provider, typeof(NanoPaymentLinkExtension), network, pmi));
         services.AddSingleton(provider => (IPaymentModelExtension)ActivatorUtilities.CreateInstance(provider, typeof(NanoPaymentModelExtension), network, pmi));
         
-        services.AddSingleton<IUIExtension>(new UIExtension("StoreNavNanoExtension", "store-nav"));
         services.AddSingleton<IUIExtension>(new UIExtension("StoreWalletsNavNanoExtension", "store-wallets-nav"));
         services.AddSingleton<IUIExtension>(new UIExtension("ViewNanoLikePaymentData", "store-invoices-payments"));
         services.AddSingleton<ISyncSummaryProvider, NanoSyncSummaryProvider>();
